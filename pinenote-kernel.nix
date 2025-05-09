@@ -15,10 +15,12 @@
   modDirVersion = "6.15.0-rc3";
   defconfig = "pinenote_defconfig";
   ignoreConfigErrors = true;
+  enableCommonConfig = false;
+  extraConfig = ''
+    VIDEO_THP7312 n
+    CRYPTO_AEGIS128_SIMD n
+  ''; # fails to build without
 }).overrideAttrs
   {
-    configurePhase = ''
-      make ARCH=arm64 pinenote_defconfig
-      sed -i 's/CRYPTO_AEGIS128_SIMD=y/CRYPTO_AEGIS128_SIMD=n/' .config
-    ''; # by default nix will use pinenote_defconfig but with its own additions, i am to lazy to check what exactly breaks building the kernel so i will just use it unmodified
+    # buildFlags = "KBUILD_BUILD_VERSION=1-NixOS Image vmlinux modules rockchip/rk3566-pinenote-v1.{1,2}.dtb DTC_FLAGS=-@";
   }
