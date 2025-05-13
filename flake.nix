@@ -11,6 +11,7 @@
       make-disk-image = import <nixpkgs/nixos/lib/make-disk-image.nix>;
       evalConfig = import <nixpkgs/nixos/lib/eval-config.nix>;
       pkgsCross = import nixpkgs {
+        # for cross compiling the kernel instead of running the whole compilation through qemu/binfmt
         crossSystem = {
           config = "aarch64-unknown-linux-gnu";
         };
@@ -30,6 +31,6 @@
         inherit (evalConfig config) config;
         partitionTableType = "legacy";
         fsType = "ext4";
-      }; # nix build #.diskImage --impure # this is most likely not the way to get the system files
+      }; # nix build #.diskImage --impure (this is most likely not the way to get the system files) after that mount with -o loop,offset=1048576 and rsync the files over to the pinenote on a seperate and label the partition as nixos
     };
 }

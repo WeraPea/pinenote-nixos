@@ -1,4 +1,3 @@
-# no real idea what i am doing here
 {
   pkgs,
   fetchFromSourcehut,
@@ -14,13 +13,17 @@
   version = "6.15.0-rc3";
   modDirVersion = "6.15.0-rc3";
   defconfig = "pinenote_defconfig";
-  ignoreConfigErrors = true;
-  enableCommonConfig = false;
+  ignoreConfigErrors = true; # from jzbor/nix-parcels
+  # enableCommonConfig = false; # maybe lower size?
   extraConfig = ''
     VIDEO_THP7312 n
     CRYPTO_AEGIS128_SIMD n
-  ''; # fails to build without
+    ROCKCHIP_DW_HDMI_QP n
+  ''; # fails to build otherwise
 }).overrideAttrs
-  {
-    # buildFlags = "KBUILD_BUILD_VERSION=1-NixOS Image vmlinux modules rockchip/rk3566-pinenote-v1.{1,2}.dtb DTC_FLAGS=-@";
-  }
+  (oldAttrs: {
+    postInstall = ''
+      cp "$out/dtbs/rockchip/rk3566-pinenote-v1.2.dtb" "$out/dtbs/rockchip/pn.dtb"
+      ${oldAttrs.postInstall}
+    '';
+  })

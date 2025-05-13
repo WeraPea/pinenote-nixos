@@ -1,12 +1,11 @@
 {
-  stdenv,
+  stdenvNoCC,
   fetchurl,
-  lib,
   ...
 }:
 
-stdenv.mkDerivation rec {
-  pname = "brcm-firmware-pinenote";
+stdenvNoCC.mkDerivation rec {
+  pname = "pinenote-firmware";
   version = "0.1";
 
   srcs = [
@@ -43,10 +42,4 @@ stdenv.mkDerivation rec {
     ln -s brcmfmac43455-sdio.AW-CM256SM.txt \
       $out/lib/firmware/brcm/brcmfmac43455-sdio.pine64,pinenote-v1.2.txt
   '';
-
-  meta = {
-    description = "Custom brcm firmware for Pine64 PineNote";
-    license = lib.licenses.unfreeRedistributableFirmware;
-    platforms = lib.platforms.linux;
-  };
 }
