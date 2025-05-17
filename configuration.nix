@@ -1,15 +1,13 @@
 {
   pkgs,
   lib,
-  pkgsCross,
+  outputs,
   ...
 }:
 {
   boot.loader.grub.enable = false;
   boot.loader.generic-extlinux-compatible.enable = true;
-  boot.kernelPackages = pkgs.linuxPackagesFor (
-    pkgs.callPackage ./pinenote-kernel.nix { pkgs = pkgsCross; }
-  );
+  boot.kernelPackages = pkgs.linuxPackagesFor (outputs.packages.${pkgs.system}.pinenote-kernel);
   boot.initrd.availableKernelModules = lib.mkForce [
     "gpio-rockchip" # needed for boot
     "ext2"
@@ -42,11 +40,12 @@
   };
 
   networking.networkmanager.enable = true;
+  networking.hostName = "pinenote";
 
   # hardware.deviceTree.name = "rockchip/rk3566-pinenote-v1.2.dtb";
-  hardware.deviceTree.name = "rockchip/pn.dtb"; # workaround: uboot has a 127 char limit for the path
+  hardware.deviceTree.name = "rockchip/pn.dtb"; # workaround: current uboot has a 127 char limit for the path
   hardware.firmware = [
-    (pkgs.callPackage ./pinenote-firmware.nix { })
+    outputs.packages.${pkgs.system}.pinenote-firmware
     pkgs.raspberrypiWirelessFirmware
   ];
 }

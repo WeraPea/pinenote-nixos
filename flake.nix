@@ -2,16 +2,18 @@
   inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
 
   outputs =
-    { self, nixpkgs }:
+    { self, nixpkgs }@inputs:
     let
+      inherit (self) outputs;
       system = "aarch64-linux";
       pkgs = import nixpkgs { inherit system; };
       lib = pkgs.lib;
-      cfg = import ./configuration.nix;
       make-disk-image = import <nixpkgs/nixos/lib/make-disk-image.nix>;
       evalConfig = import <nixpkgs/nixos/lib/eval-config.nix>;
+      cfg = import ./configuration.nix;
       pkgsCross = import nixpkgs {
         # for cross compiling the kernel instead of running the whole compilation through qemu/binfmt
+        system = "x86_64-linux";
         crossSystem = {
           config = "aarch64-unknown-linux-gnu";
         };
@@ -20,12 +22,13 @@
         inherit system;
         modules = [ cfg ];
         specialArgs = {
-          inherit pkgsCross;
+          inherit inputs outputs;
         };
       };
     in
     {
-      nixosConfiguration.pinenote = nixpkgs.lib.nixosSystem config;
+      packages.${system} = import ./packages { inherit pkgs pkgsCross; };
+      nixosConfigurations.pinenote = nixpkgs.lib.nixosSystem config;
       diskImage = make-disk-image {
         inherit pkgs lib;
         inherit (evalConfig config) config;
