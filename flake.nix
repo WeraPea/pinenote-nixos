@@ -28,6 +28,7 @@
     in
     {
       packages.${system} = import ./packages { inherit pkgs pkgsCross; };
+      modules.default = import ./module.nix;
       nixosConfigurations.pinenote = nixpkgs.lib.nixosSystem config;
       diskImage = make-disk-image {
         inherit pkgs lib;
