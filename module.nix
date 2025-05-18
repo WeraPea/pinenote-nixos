@@ -1,13 +1,13 @@
+inputs:
 {
   config,
   lib,
   pkgs,
-  outputs,
   ...
 }:
 {
   options = {
-    pinenote-config.enable = lib.mkOption { description = "Enable pinenote specific nixos config"; };
+    pinenote-config.enable = lib.mkEnableOption "Enable pinenote specific nixos config";
   };
   config = lib.mkIf config.pinenote-config.enable {
     services.udev.packages = [
@@ -46,7 +46,7 @@
     '';
     boot.loader.grub.enable = false;
     boot.loader.generic-extlinux-compatible.enable = true;
-    boot.kernelPackages = pkgs.linuxPackagesFor (outputs.packages.${pkgs.system}.pinenote-kernel);
+    boot.kernelPackages = pkgs.linuxPackagesFor (inputs.self.packages.${pkgs.system}.pinenote-kernel);
     boot.initrd.availableKernelModules = lib.mkForce [
       # how could mkForce be removed?
       "gpio-rockchip"
@@ -59,12 +59,12 @@
     # hardware.deviceTree.name = "rockchip/rk3566-pinenote-v1.2.dtb";
     hardware.deviceTree.name = "rockchip/pn.dtb"; # workaround: current uboot has a 127 char limit for the path
     hardware.firmware = [
-      outputs.packages.${pkgs.system}.pinenote-firmware
+      inputs.self.packages.${pkgs.system}.pinenote-firmware
       pkgs.raspberrypiWirelessFirmware
     ];
     environment.defaultPackages =
       let
-        tools = outputs.packages.${pkgs.system}.pinenote-waveform-tools;
+        tools = inputs.self.packages.${pkgs.system}.pinenote-waveform-tools;
       in
       [
         (pkgs.writeShellScriptBin "setup-waveform.sh" ''
@@ -77,7 +77,7 @@
           mkdir -p /lib/firmware/rockchip
           ${tools}/usr/bin/waveform_extract.sh
           cd /tmp && ${tools}/usr/bin/wbf_to_custom.py /lib/firmware/rockchip/ebc.wbf && mv custom_wf.bin /lib/firmware/rockchip/custom_wf.bin && (modprobe -r rockchip_ebc; modprobe rockchip_ebc)
-        '')
+        '') # don't know how or if even possible to handle the waveform partition more "nix" way
       ];
   };
 }

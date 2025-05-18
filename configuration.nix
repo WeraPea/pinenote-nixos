@@ -5,7 +5,7 @@
   ...
 }:
 {
-  imports = [ outputs.modules.default ];
+  imports = [ outputs.nixosModules.default ];
   pinenote-config.enable = true;
   fileSystems."/" = {
     label = "nixos";

@@ -27,14 +27,14 @@
       };
     in
     {
-      packages.${system} = import ./packages { inherit pkgs pkgsCross; };
-      modules.default = import ./module.nix;
-      nixosConfigurations.pinenote = nixpkgs.lib.nixosSystem config;
+      packages.${system} = import ./packages { inherit pkgs pkgsCross; }; # "https://pinenote-packages.cachix.org" for kernel
+      nixosModules.default = import ./module.nix inputs;
+      nixosConfigurations.pinenote = nixpkgs.lib.nixosSystem config; # sudo NIX_SSHOPTS="-i /root/.ssh/remotebuildhost" nixos-rebuild test --flake ~/pinenote/pinenote-nixos#pinenote --fast --target-host root@pinenote.home
       diskImage = make-disk-image {
         inherit pkgs lib;
         inherit (evalConfig config) config;
         partitionTableType = "legacy";
         fsType = "ext4";
-      }; # nix build #.diskImage --impure (this is most likely not the way to get the system files) after that mount with -o loop,offset=1048576 and rsync the files over to the pinenote on a seperate and label the partition as nixos
+      }; # nix build #.diskImage --impure (this is most likely not the way to get the system files) after that mount with -o loop,offset=1048576 and rsync the files over to the pinenote to a seperate partition and label it as nixos
     };
 }
