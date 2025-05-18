@@ -6,7 +6,7 @@
 }:
 {
   imports = [ outputs.nixosModules.default ];
-  pinenote-config.enable = true;
+  pinenote.config.enable = true;
   fileSystems."/" = {
     label = "nixos";
     fsType = "ext4";
@@ -17,7 +17,7 @@
   users.users."user" = {
     isNormalUser = true;
     extraGroups = [ "wheel" ];
-    # password = "password"; # for boot image only
+    password = "password";
   };
 
   networking.networkmanager.enable = true;

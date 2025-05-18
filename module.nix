@@ -7,9 +7,10 @@ inputs:
 }:
 {
   options = {
-    pinenote-config.enable = lib.mkEnableOption "Enable pinenote specific nixos config";
+    pinenote.config.enable = lib.mkEnableOption "Enable pinenote specific nixos config";
+    pinenote.sway-dbus-integration.enable = lib.mkEnableOption "Enables sway-dbus-integration service";
   };
-  config = lib.mkIf config.pinenote-config.enable {
+  config = lib.mkIf config.pinenote.config.enable {
     services.udev.packages = [
       (pkgs.writeTextDir "lib/udev/rules.d/81-libinput-pinenote.rules" ''
         ACTION=="remove", GOTO="libinput_device_group_end"
@@ -55,6 +56,24 @@ inputs:
       "usbhid"
       "hid_generic"
     ];
+
+    systemd.user.services.sway-dbus-integration =
+      lib.mkIf config.pinenote.sway-dbus-integration.enable
+        {
+          description = "sway-dbus-integration";
+          wantedBy = [ "graphical-session.target" ];
+          wants = [ "graphical-session.target" ];
+          after = [ "graphical-session.target" ];
+          serviceConfig = {
+            Type = "simple";
+            ExecStart = "${
+              inputs.self.packages.${pkgs.system}.pinenote-sway-dbus-integration
+            }/usr/bin/sway_dbus_integration.py";
+            Restart = "on-failure";
+            RestartSec = 1;
+            TimeoutStopSec = 10;
+          };
+        };
 
     # hardware.deviceTree.name = "rockchip/rk3566-pinenote-v1.2.dtb";
     hardware.deviceTree.name = "rockchip/pn.dtb"; # workaround: current uboot has a 127 char limit for the path
