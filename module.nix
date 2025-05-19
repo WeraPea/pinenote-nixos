@@ -5,6 +5,9 @@ inputs:
   pkgs,
   ...
 }:
+let
+  packages = inputs.self.packages.${pkgs.system};
+in
 {
   options = {
     pinenote.config.enable = lib.mkEnableOption "Enable pinenote specific nixos config";
@@ -47,7 +50,7 @@ inputs:
     '';
     boot.loader.grub.enable = false;
     boot.loader.generic-extlinux-compatible.enable = true;
-    boot.kernelPackages = pkgs.linuxPackagesFor (inputs.self.packages.${pkgs.system}.pinenote-kernel);
+    boot.kernelPackages = pkgs.linuxPackagesFor (packages.pinenote-kernel);
     boot.initrd.availableKernelModules = lib.mkForce [
       # how could mkForce be removed?
       "gpio-rockchip"
@@ -66,9 +69,7 @@ inputs:
           after = [ "graphical-session.target" ];
           serviceConfig = {
             Type = "simple";
-            ExecStart = "${
-              inputs.self.packages.${pkgs.system}.pinenote-sway-dbus-integration
-            }/usr/bin/sway_dbus_integration.py";
+            ExecStart = "${packages.pinenote-sway-dbus-integration}/usr/bin/sway_dbus_integration.py";
             Restart = "on-failure";
             RestartSec = 1;
             TimeoutStopSec = 10;
@@ -78,25 +79,21 @@ inputs:
     # hardware.deviceTree.name = "rockchip/rk3566-pinenote-v1.2.dtb";
     hardware.deviceTree.name = "rockchip/pn.dtb"; # workaround: current uboot has a 127 char limit for the path
     hardware.firmware = [
-      inputs.self.packages.${pkgs.system}.pinenote-firmware
+      packages.pinenote-firmware
       pkgs.raspberrypiWirelessFirmware
     ];
-    environment.defaultPackages =
-      let
-        tools = inputs.self.packages.${pkgs.system}.pinenote-waveform-tools;
-      in
-      [
-        (pkgs.writeShellScriptBin "setup-waveform.sh" ''
-          if [ "$EUID" -ne 0 ]
-            then echo "Please run as root"
-            exit
-          fi
-          test -e /lib/firmware/rockchip_ebc/ebc.wbf && exit
-          test -e /lib/firmware/rockchip_ebc/custom_wf.bin && exit
-          mkdir -p /lib/firmware/rockchip
-          ${tools}/usr/bin/waveform_extract.sh
-          cd /tmp && ${tools}/usr/bin/wbf_to_custom.py /lib/firmware/rockchip/ebc.wbf && mv custom_wf.bin /lib/firmware/rockchip/custom_wf.bin && (modprobe -r rockchip_ebc; modprobe rockchip_ebc)
-        '') # don't know how or if even possible to handle the waveform partition more "nix" way
-      ];
+    environment.defaultPackages = [
+      (pkgs.writeShellScriptBin "setup-waveform.sh" ''
+        if [ "$EUID" -ne 0 ]
+          then echo "Please run as root"
+          exit
+        fi
+        test -e /lib/firmware/rockchip_ebc/ebc.wbf && exit
+        test -e /lib/firmware/rockchip_ebc/custom_wf.bin && exit
+        mkdir -p /lib/firmware/rockchip
+        ${packages.waveform_extract}/bin/waveform_extract.sh
+        cd /tmp && ${packages.wbf_to_custom}/bin/wbf_to_custom.py /lib/firmware/rockchip/ebc.wbf && mv custom_wf.bin /lib/firmware/rockchip/custom_wf.bin && (modprobe -r rockchip_ebc; modprobe rockchip_ebc)
+      '') # don't know how or if even possible to handle the waveform partition more "nix" way
+    ];
   };
 }
