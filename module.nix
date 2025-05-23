@@ -69,7 +69,7 @@ in
           after = [ "graphical-session.target" ];
           serviceConfig = {
             Type = "simple";
-            ExecStart = "${packages.pinenote-sway-dbus-integration}/usr/bin/sway_dbus_integration.py";
+            ExecStart = "${lib.getExe' packages.pinenote-sway-dbus-integration "sway_dbus_integration"}";
             Restart = "on-failure";
             RestartSec = 1;
             TimeoutStopSec = 10;
