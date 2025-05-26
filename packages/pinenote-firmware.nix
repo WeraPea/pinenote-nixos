@@ -6,7 +6,7 @@
 
 stdenvNoCC.mkDerivation rec {
   pname = "pinenote-firmware";
-  version = "0.1";
+  version = "0.2";
 
   srcs = [
     (fetchurl {
@@ -14,8 +14,8 @@ stdenvNoCC.mkDerivation rec {
       sha256 = "sha256-1Aj6qdDVsaL5kS3OpTqwvkghcojjmEBtEX8O2v58Pt0=";
     })
     (fetchurl {
-      url = "https://gitlab.com/kernel-firmware/linux-firmware/-/raw/8d82acd29b5c115f0b75b17907ebce712c6f2e22/cypress/cyfmac43455-sdio.clm_blob";
-      sha256 = "sha256-FfUKJwILJj0b6iFcj2jQVQ2RKTLR2e8Z/9WfGNgt1GA=";
+      url = "https://github.com/RPi-Distro/firmware-nonfree/raw/3ab8ca8e989a08c4a3cd7f614645311c475b97eb/debian/config/brcm80211/cypress/cyfmac43455-sdio.clm_blob";
+      sha256 = "sha256-mCOELK6fuaXdHl+zH1lVFux97uNBNUvvMLswJu7inME=";
     })
     (fetchurl {
       url = "https://gitlab.com/kernel-firmware/linux-firmware/-/raw/8d82acd29b5c115f0b75b17907ebce712c6f2e22/brcm/brcmfmac43455-sdio.AW-CM256SM.txt";
