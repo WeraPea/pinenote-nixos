@@ -12,6 +12,11 @@ in
   options = {
     pinenote.config.enable = lib.mkEnableOption "Enable pinenote specific nixos config";
     pinenote.sway-dbus-integration.enable = lib.mkEnableOption "Enables sway-dbus-integration service";
+    pinenote.pinenote-service.sway.enable = lib.mkEnableOption "Enables pinenote-service for sway";
+    pinenote.pinenote-service.hyprland.enable = lib.mkEnableOption "Enables pinenote-service for hyprland";
+    pinenote.pinenote-service.package =
+      lib.mkPackageOption inputs.pinenote-service.packages.${pkgs.system} "default"
+        { };
   };
   config = lib.mkIf config.pinenote.config.enable {
     services.udev.packages = [
@@ -70,6 +75,36 @@ in
           serviceConfig = {
             Type = "simple";
             ExecStart = "${lib.getExe' packages.pinenote-sway-dbus-integration "sway_dbus_integration"}";
+            Restart = "on-failure";
+            RestartSec = 1;
+            TimeoutStopSec = 10;
+          };
+        };
+    systemd.user.services.pinenote-service-sway =
+      lib.mkIf config.pinenote.pinenote-service.sway.enable
+        {
+          description = "pinenote-service";
+          wantedBy = [ "graphical-session.target" ];
+          wants = [ "graphical-session.target" ];
+          after = [ "graphical-session.target" ];
+          serviceConfig = {
+            Type = "simple";
+            ExecStart = "${lib.getExe' config.pinenote.pinenote-service.package "pinenote-service"} --sway";
+            Restart = "on-failure";
+            RestartSec = 1;
+            TimeoutStopSec = 10;
+          };
+        };
+    systemd.user.services.pinenote-service-hyprland =
+      lib.mkIf config.pinenote.pinenote-service.hyprland.enable
+        {
+          description = "pinenote-service";
+          wantedBy = [ "graphical-session.target" ];
+          wants = [ "graphical-session.target" ];
+          after = [ "graphical-session.target" ];
+          serviceConfig = {
+            Type = "simple";
+            ExecStart = "${lib.getExe' config.pinenote.pinenote-service.package "pinenote-service"} --hyprland";
             Restart = "on-failure";
             RestartSec = 1;
             TimeoutStopSec = 10;

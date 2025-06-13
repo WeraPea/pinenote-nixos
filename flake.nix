@@ -1,8 +1,11 @@
 {
-  inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+  inputs = {
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    pinenote-service.url = "github:WeraPea/pinenote-service";
+  };
 
   outputs =
-    { self, nixpkgs }@inputs:
+    { self, nixpkgs, ... }@inputs:
     let
       inherit (self) outputs;
       system = "aarch64-linux";
