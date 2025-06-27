@@ -7,14 +7,13 @@
   src = fetchFromSourcehut {
     owner = "~hrdl";
     repo = "linux";
-    rev = "b0e82d0f7a25ffa9da40f5d1aa4218023dbfc14d";
-    sha256 = "sha256-aenAQqw4ABaXtXM3fnXIg8rBXMqQ5M7eMYmEL1yCB7c=";
+    rev = "f75fe16d81ae784b8cd2b915113f3a99ff812777";
+    sha256 = "sha256-DhMiZMcwownJJRqIYOj87E/j34jJZb2/rTOhYuMumG4=";
   };
   version = "6.15.0-rc3";
   modDirVersion = "6.15.0-rc3";
   defconfig = "pinenote_defconfig";
   ignoreConfigErrors = true; # from jzbor/nix-parcels
-  # enableCommonConfig = false; # maybe lower size?
   extraConfig = ''
     VIDEO_THP7312 n
     CRYPTO_AEGIS128_SIMD n
