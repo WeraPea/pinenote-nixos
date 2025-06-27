@@ -56,8 +56,8 @@ in
     boot.loader.grub.enable = false;
     boot.loader.generic-extlinux-compatible.enable = true;
     boot.kernelPackages = pkgs.linuxPackagesFor (packages.pinenote-kernel);
-    boot.initrd.availableKernelModules = lib.mkForce [
-      # how could mkForce be removed?
+    boot.initrd.includeDefaultModules = false;
+    boot.initrd.availableKernelModules = [
       "gpio-rockchip"
       "ext4"
       "mmc_block"
