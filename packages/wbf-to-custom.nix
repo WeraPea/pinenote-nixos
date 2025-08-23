@@ -15,6 +15,8 @@ pkgs.python3Packages.buildPythonPackage {
     rev = "81a8ea7faa40b3731e4aa83034250862f4e698d6";
     hash = "sha256-6yhPQ25Grgyazx1Dob/jwD06dVg2JUdh/tFjsk8mtt4=";
   };
+  pyproject = true;
+  build-system = with pkgs.python3Packages; [ setuptools ];
   sourceRoot = "source/bin";
   propagatedBuildInputs = with pkgs.python3Packages; [
     numpy
@@ -28,7 +30,7 @@ pkgs.python3Packages.buildPythonPackage {
       name='wbf_to_custom',
       py_modules=['wbf_to_custom'],
       install_requires=[
-        'pandas'
+        'pandas',
         'numpy',
         'read_file',
       ],

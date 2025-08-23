@@ -148,7 +148,7 @@ in
         test -e /lib/firmware/rockchip_ebc/custom_wf.bin && exit
         mkdir -p /lib/firmware/rockchip
         ${packages.waveform-extract}/bin/waveform_extract.sh
-        cd /tmp && ${packages.wbf-to-custom}/bin/wbf_to_custom.py /lib/firmware/rockchip/ebc.wbf && mv custom_wf.bin /lib/firmware/rockchip/custom_wf.bin && (modprobe -r rockchip_ebc; modprobe rockchip_ebc)
+        cd /tmp && ${packages.wbf-to-custom}/bin/wbf_to_custom /lib/firmware/rockchip/ebc.wbf && mv custom_wf.bin /lib/firmware/rockchip/custom_wf.bin && (modprobe -r rockchip_ebc; modprobe rockchip_ebc)
       '') # don't know how or if even possible to handle the waveform partition more "nix" way
     ];
   };
