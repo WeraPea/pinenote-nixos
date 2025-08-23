@@ -12,7 +12,11 @@ in
   options = {
     pinenote.config.enable = lib.mkEnableOption "Enable pinenote specific nixos config";
     pinenote.sway-dbus-integration.enable = lib.mkEnableOption "Enables sway-dbus-integration service";
-    pinenote.pinenote-service.sway.enable = lib.mkEnableOption "Enables pinenote-service for sway";
+    pinenote.pinenote-service.sway.enable = lib.mkEnableOption ''
+      Enable pinenote-service for Sway.
+      Requires `wayland.windowManager.sway.systemd.enable = true` in Home Manager or an equivalent setup.
+      Otherwise, start pinenote-service manually in Sway with `exec_always`.
+    '';
     pinenote.pinenote-service.hyprland.enable = lib.mkEnableOption "Enables pinenote-service for hyprland";
     pinenote.pinenote-service.package =
       lib.mkPackageOption inputs.pinenote-service.packages.${pkgs.system} "default"
