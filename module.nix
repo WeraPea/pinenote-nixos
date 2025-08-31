@@ -114,27 +114,6 @@ in
             TimeoutStopSec = 10;
           };
         };
-    systemd.services.suspend-on-cover = {
-      description = "Suspend system on cover close";
-      after = [ "multi-user.target" ];
-      wantedBy = [ "multi-user.target" ];
-      serviceConfig = {
-        Type = "simple";
-        ExecStart = lib.getExe (
-          pkgs.writeShellScriptBin "suspend-on-cover" ''
-            ${lib.getExe pkgs.evtest} /dev/input/by-path/platform-gpio-keys-event | while read -r line; do
-              case "$line" in
-                *"type 5 (EV_SW), code 16"*' value 1'*)
-                  echo "LID CLOSED"
-                  systemctl suspend
-                  ;;
-              esac
-            done
-          ''
-        );
-        Restart = "always";
-      };
-    };
 
     # hardware.deviceTree.name = "rockchip/rk3566-pinenote-v1.2.dtb";
     hardware.deviceTree.name = "rockchip/pn.dtb"; # workaround: current uboot has a 127 char limit for the path
