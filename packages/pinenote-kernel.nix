@@ -3,15 +3,15 @@
   fetchFromSourcehut,
   ...
 }:
-(pkgs.buildLinux {
+(pkgs.buildLinux rec {
   src = fetchFromSourcehut {
     owner = "~hrdl";
     repo = "linux";
-    rev = "f75fe16d81ae784b8cd2b915113f3a99ff812777";
-    sha256 = "sha256-DhMiZMcwownJJRqIYOj87E/j34jJZb2/rTOhYuMumG4=";
+    rev = "1a119bb3028b09cab962781aa3b6992ed7a3aa1e";
+    sha256 = "sha256-UKwjXJ5CyUoGpiNkyYl/2sg7E3Iw8Lsv5/1IJkdbvAo=";
   };
-  version = "6.15.0-rc3";
-  modDirVersion = "6.15.0-rc3";
+  version = "6.17.0-rc5";
+  modDirVersion = version;
   defconfig = "pinenote_defconfig";
   ignoreConfigErrors = true; # from jzbor/nix-parcels
   extraConfig = ''
