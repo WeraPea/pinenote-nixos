@@ -1,6 +1,5 @@
-{ pkgs, pkgsCross }:
-rec {
-  pinenote-kernel = pkgs.callPackage ./pinenote-kernel.nix { pkgs = pkgsCross; };
+pkgs: rec {
+  pinenote-kernel = pkgs.callPackage ./pinenote-kernel.nix { };
   pinenote-firmware = pkgs.callPackage ./pinenote-firmware.nix { };
   rockchip-ebc-custom-ioctl = pkgs.callPackage ./rockchip-ebc-custom-ioctl.nix { };
   pinenote-sway-dbus-integration = pkgs.callPackage ./sway-dbus-integration.nix {

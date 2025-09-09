@@ -14,13 +14,6 @@
       make-disk-image = import "${nixpkgs}/nixos/lib/make-disk-image.nix";
       evalConfig = import "${nixpkgs}/nixos/lib/eval-config.nix";
       cfg = import ./configuration.nix;
-      pkgsCross = import nixpkgs {
-        # for cross compiling the kernel instead of running the whole compilation through qemu/binfmt
-        system = "x86_64-linux";
-        crossSystem = {
-          config = "aarch64-unknown-linux-gnu";
-        };
-      };
       config = {
         inherit system;
         modules = [ cfg ];
@@ -30,7 +23,7 @@
       };
     in
     {
-      packages.${system} = import ./packages { inherit pkgs pkgsCross; }; # "https://pinenote-packages.cachix.org" for kernel
+      packages.${system} = import ./packages pkgs;
       nixosModules.default = import ./module.nix inputs;
       nixosConfigurations.pinenote = nixpkgs.lib.nixosSystem config; # sudo NIX_SSHOPTS="-i /root/.ssh/remotebuildhost" nixos-rebuild test --flake ~/pinenote/pinenote-nixos#pinenote --fast --target-host root@pinenote.home
       diskImage = make-disk-image {
