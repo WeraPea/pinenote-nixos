@@ -11,8 +11,8 @@
       system = "aarch64-linux";
       pkgs = import nixpkgs { inherit system; };
       lib = pkgs.lib;
-      make-disk-image = import <nixpkgs/nixos/lib/make-disk-image.nix>;
-      evalConfig = import <nixpkgs/nixos/lib/eval-config.nix>;
+      make-disk-image = import "${nixpkgs}/nixos/lib/make-disk-image.nix";
+      evalConfig = import "${nixpkgs}/nixos/lib/eval-config.nix";
       cfg = import ./configuration.nix;
       pkgsCross = import nixpkgs {
         # for cross compiling the kernel instead of running the whole compilation through qemu/binfmt
