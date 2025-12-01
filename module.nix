@@ -6,7 +6,7 @@ inputs:
   ...
 }:
 let
-  packages = inputs.self.packages.${pkgs.system};
+  packages = inputs.self.packages.${pkgs.stdenv.hostPlatform.system};
 in
 {
   options = {
@@ -19,7 +19,7 @@ in
     '';
     pinenote.pinenote-service.hyprland.enable = lib.mkEnableOption "Enables pinenote-service for hyprland";
     pinenote.pinenote-service.package =
-      lib.mkPackageOption inputs.pinenote-service.packages.${pkgs.system} "default"
+      lib.mkPackageOption inputs.pinenote-service.packages.${pkgs.stdenv.hostPlatform.system} "default"
         { };
   };
   config = lib.mkIf config.pinenote.config.enable {
