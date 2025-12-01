@@ -1,7 +1,6 @@
 {
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-    pinenote-service.url = "github:WeraPea/pinenote-service";
   };
 
   outputs =

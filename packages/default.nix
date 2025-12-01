@@ -8,4 +8,5 @@ pkgs: rec {
   waveform-extract = pkgs.callPackage ./waveform-extract.nix { };
   waveform-read-file = pkgs.callPackage ./waveform-read-file.nix { };
   wbf-to-custom = pkgs.callPackage ./wbf-to-custom.nix { inherit waveform-read-file; };
+  pinenote-service = pkgs.callPackage ./pinenote-service.nix { };
 }

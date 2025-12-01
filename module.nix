@@ -12,14 +12,9 @@ in
   options = {
     pinenote.config.enable = lib.mkEnableOption "Enable pinenote specific nixos config";
     pinenote.sway-dbus-integration.enable = lib.mkEnableOption "Enables sway-dbus-integration service";
-    pinenote.pinenote-service.sway.enable = lib.mkEnableOption ''
-      Enable pinenote-service for Sway.
-      Requires `wayland.windowManager.sway.systemd.enable = true` in Home Manager or an equivalent setup.
-      Otherwise, start pinenote-service manually in Sway with `exec_always`.
-    '';
-    pinenote.pinenote-service.hyprland.enable = lib.mkEnableOption "Enables pinenote-service for hyprland";
+    pinenote.pinenote-service.enable = lib.mkEnableOption "Enable pinenote-service";
     pinenote.pinenote-service.package =
-      lib.mkPackageOption inputs.pinenote-service.packages.${pkgs.stdenv.hostPlatform.system} "default"
+      lib.mkPackageOption packages "pinenote-service"
         { };
   };
   config = lib.mkIf config.pinenote.config.enable {
@@ -84,36 +79,12 @@ in
             TimeoutStopSec = 10;
           };
         };
-    systemd.user.services.pinenote-service-sway =
-      lib.mkIf config.pinenote.pinenote-service.sway.enable
-        {
-          description = "pinenote-service";
-          wantedBy = [ "graphical-session.target" ];
-          wants = [ "graphical-session.target" ];
-          after = [ "graphical-session.target" ];
-          serviceConfig = {
-            Type = "simple";
-            ExecStart = "${lib.getExe' config.pinenote.pinenote-service.package "pinenote-service"} --sway";
-            Restart = "on-failure";
-            RestartSec = 1;
-            TimeoutStopSec = 10;
-          };
-        };
-    systemd.user.services.pinenote-service-hyprland =
-      lib.mkIf config.pinenote.pinenote-service.hyprland.enable
-        {
-          description = "pinenote-service";
-          wantedBy = [ "graphical-session.target" ];
-          wants = [ "graphical-session.target" ];
-          after = [ "graphical-session.target" ];
-          serviceConfig = {
-            Type = "simple";
-            ExecStart = "${lib.getExe' config.pinenote.pinenote-service.package "pinenote-service"} --hyprland";
-            Restart = "on-failure";
-            RestartSec = 1;
-            TimeoutStopSec = 10;
-          };
-        };
+    systemd.packages = lib.mkIf config.pinenote.pinenote-service.enable [
+      config.pinenote.pinenote-service.package
+    ];
+    services.dbus.packages = lib.mkIf config.pinenote.pinenote-service.enable [
+      config.pinenote.pinenote-service.package
+    ];
 
     # hardware.deviceTree.name = "rockchip/rk3566-pinenote-v1.2.dtb";
     hardware.deviceTree.name = "rockchip/pn.dtb"; # workaround: current uboot has a 127 char limit for the path
