@@ -54,7 +54,7 @@ in
     '';
     boot.loader.grub.enable = false;
     boot.loader.generic-extlinux-compatible.enable = true;
-    boot.kernelPackages = pkgs.linuxPackagesFor (packages.pinenote-kernel);
+    boot.kernelPackages = lib.mkDefault (pkgs.linuxPackagesFor (packages.pinenote-kernel));
     boot.initrd.includeDefaultModules = false;
     boot.initrd.availableKernelModules = [
       "gpio-rockchip"
