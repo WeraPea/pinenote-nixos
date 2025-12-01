@@ -11,9 +11,8 @@ Whats most important is that you label the partition you will be installing to a
 To create a disk image on existing NixOS system:
 
 1. (optional) If you don't have the UART dongle then first add your home network to the `./configuration.nix` file with [networking.networkmanager.ensureProfiles.profiles](https://search.nixos.org/options?show=networking.networkmanager.ensureProfiles.profiles)
-2. (optional) Add pinenote-packages.cachix.org substituter along with the key `pinenote-packages.cachix.org-1:kikxnRWwjP5M1jWa31XlRqEkKFC4y8z+GlEtk2hCrII=` to your substituters so you don't have to build the kernel. Rebuild your system so that it can be used.
-3. Add `aarch64-linux` to [boot.binfmt.emulatedSystems](https://nixos.org/manual/nixos/unstable/options#opt-boot.binfmt.emulatedSystems). Rebuild your system to apply.
-4. Run `nix build .#diskImage --impure`
+2. Add `aarch64-linux` to [boot.binfmt.emulatedSystems](https://nixos.org/manual/nixos/unstable/options#opt-boot.binfmt.emulatedSystems). Rebuild your system to apply.
+3. Run `nix build .#diskImage --impure`
 
 ## Booting
 1. On PineNote mount your os2 partition on /mnt/ and ensure it is labeled as nixos (blkid should report the partition with LABEL="nixos", PARTLABEL can be different)
