@@ -7,7 +7,7 @@
   ...
 }@args:
 let
-  version = "6.19.0-rc1";
+  version = "6.19.0";
 in
 (buildLinux (
   args
@@ -15,8 +15,8 @@ in
     src = fetchFromSourcehut {
       owner = "~hrdl";
       repo = "linux";
-      rev = "6515b53ee928ed7cd03b0e6660575d70a5fc422e";
-      hash = "sha256-637dNW+6cPaaJ3KA/rqdc0xQ9s+cMKXG9Jt10U54TuY=";
+      rev = "46028a0e2658877625568f2134e243b304966ef4";
+      hash = "sha256-Y96Yae3SLoTJoRLqjeMK7lubBCsJUrc/1Lk6Eyfm6K0=";
     };
     inherit version;
     modDirVersion = version;
