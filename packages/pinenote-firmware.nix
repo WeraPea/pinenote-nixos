@@ -22,7 +22,7 @@ stdenvNoCC.mkDerivation rec {
       sha256 = "sha256-9QNiIHt1NlIcrapZvcKUqa2UaxSfu24zLsKiRcHzT78=";
     })
     (fetchurl {
-      url = "https://gitlab.com/kernel-firmware/linux-firmware/-/raw/main/LICENCE.cypress";
+      url = "https://gitlab.com/kernel-firmware/linux-firmware/-/raw/8d82acd29b5c115f0b75b17907ebce712c6f2e22/LICENCE.cypress";
       sha256 = "sha256-rg22zE2zOUEUjfD2feU+dqd7G1pGsxZe23BAqidQAV8=";
     })
   ];
