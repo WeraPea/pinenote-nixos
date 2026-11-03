@@ -10,12 +10,10 @@ let
 in
 {
   options = {
-    pinenote.config.enable = lib.mkEnableOption "Enable pinenote specific nixos config";
-    pinenote.sway-dbus-integration.enable = lib.mkEnableOption "Enables sway-dbus-integration service";
-    pinenote.pinenote-service.enable = lib.mkEnableOption "Enable pinenote-service";
-    pinenote.pinenote-service.package =
-      lib.mkPackageOption packages "pinenote-service"
-        { };
+    pinenote.config.enable = lib.mkEnableOption "pinenote specific nixos configs";
+    pinenote.sway-dbus-integration.enable = lib.mkEnableOption "sway-dbus-integration service";
+    pinenote.pinenote-service.enable = lib.mkEnableOption "pinenote-service";
+    pinenote.pinenote-service.package = lib.mkPackageOption packages "pinenote-service" { };
   };
   config = lib.mkIf config.pinenote.config.enable {
     services.udev.packages = [
@@ -64,6 +62,13 @@ in
       "usbhid"
       "hid_generic"
     ];
+    boot.kernelParams = [
+      "console=tty0"
+      "console=ttyS2,1500000n8"
+      "earlycon"
+      "ignore_loglevel"
+      "vt.global_cursor_default=0"
+    ];
 
     systemd.user.services.sway-dbus-integration =
       lib.mkIf config.pinenote.sway-dbus-integration.enable
@@ -93,7 +98,7 @@ in
       packages.pinenote-firmware
       pkgs.raspberrypiWirelessFirmware
     ];
-    environment.defaultPackages = [
+    environment.systemPackages = [
       (pkgs.writeShellScriptBin "setup-waveform.sh" ''
         if [ "$EUID" -ne 0 ]
           then echo "Please run as root"

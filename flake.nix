@@ -26,8 +26,7 @@
         make-disk-image {
           inherit pkgs lib;
           inherit (evalConfig cfg) config;
-          partitionTableType = "legacy";
-          fsType = "ext4";
+          additionalSpace = "0M";
         };
     in
     {
