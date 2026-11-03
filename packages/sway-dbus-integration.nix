@@ -7,7 +7,7 @@
 }:
 
 pkgs.python3Packages.buildPythonPackage {
-  pname = "pinenote-sway-dbus-integration";
+  pname = "sway-dbus-integration";
   version = "unstable-2025-05-01";
   src = fetchFromSourcehut {
     owner = "~hrdl";

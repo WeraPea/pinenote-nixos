@@ -55,6 +55,7 @@ in
     boot.loader.grub.enable = false;
     boot.loader.generic-extlinux-compatible.enable = true;
     boot.kernelPackages = lib.mkDefault (pkgs.linuxPackagesFor (packages.pinenote-kernel));
+    boot.initrd.systemd.tpm2.enable = false;
     boot.initrd.includeDefaultModules = false;
     boot.initrd.availableKernelModules = [
       "gpio-rockchip"
@@ -73,7 +74,7 @@ in
           after = [ "graphical-session.target" ];
           serviceConfig = {
             Type = "simple";
-            ExecStart = "${lib.getExe' packages.pinenote-sway-dbus-integration "sway_dbus_integration"}";
+            ExecStart = "${lib.getExe' packages.sway-dbus-integration "sway_dbus_integration"}";
             Restart = "on-failure";
             RestartSec = 1;
             TimeoutStopSec = 10;

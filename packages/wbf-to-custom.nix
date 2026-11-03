@@ -2,7 +2,7 @@
   lib,
   pkgs,
   fetchFromSourcehut,
-  waveform-read-file,
+  read-file,
   ...
 }:
 
@@ -21,7 +21,7 @@ pkgs.python3Packages.buildPythonPackage {
   propagatedBuildInputs = with pkgs.python3Packages; [
     numpy
     pandas
-    waveform-read-file
+    read-file
   ];
   preBuild = ''
     cat > setup.py << EOF

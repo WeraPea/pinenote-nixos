@@ -5,7 +5,7 @@
   ...
 }:
 pkgs.python3Packages.buildPythonPackage {
-  pname = "waveform-read-file";
+  pname = "read-file";
   version = "unstable-2025-04-29";
   src = fetchFromSourcehut {
     owner = "~hrdl";
