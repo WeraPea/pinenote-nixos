@@ -22,7 +22,7 @@ Full build took on my machine around 40 minutes, most of that being building the
 2. On desktop system mount the image from previous section `sudo mount -o loop,offset=1048576 result/nixos.img /mnt/img/`
 3. Rsync the files over to PineNote with `sudo rsync -aHAXx --numeric-ids --progress /mnt/img/ root@<pinenote>:/mnt/` (for root access either enable root password login by changing `#PermitRootLogin prohibit-password` to `PermitRootLogin yes` in `/etc/ssh/sshd_config` on PineNote, or by providing your ssh pub key to `/root/.ssh/authorized_keys` on the PineNote)
 
-You should now be able to reboot to NixOS by selecting os2 in uboot menu and access it thought UART or ssh (password for `user` is `password`). Screen will be off as the driver doesn't have the waveform files yet, for that you need to run `sudo setup-waveform.sh` on the PineNote after booting.
+You should now be able to reboot to NixOS by selecting os2 in uboot menu and access it thought UART or ssh (password for `user` is `password`).
 
 Assuming everything went fine, you should be able to switch to your own configuration. If you are using flakes, add this repo to your inputs, include `pinenote-nixos.nixosModules.default` in your modules, and enable it with `pinenote.config.enable = true;`. For a functioning configuration you can checkout my [nixos-config](https://github.com/werapea/nixos-config).
 

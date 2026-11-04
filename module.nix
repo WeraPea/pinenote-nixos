@@ -85,6 +85,15 @@ in
             TimeoutStopSec = 10;
           };
         };
+    systemd.services.setup-waveform = {
+      description = "setup rockchip_ebc waveform files";
+      wantedBy = [ "multi-user.target" ];
+      serviceConfig = {
+        Type = "oneshot";
+        RemainAfterExit = true;
+        ExecStart = lib.getExe packages.setup-waveform;
+      };
+    };
     systemd.packages = lib.mkIf config.pinenote.pinenote-service.enable [
       config.pinenote.pinenote-service.package
     ];
@@ -97,19 +106,6 @@ in
     hardware.firmware = [
       packages.pinenote-firmware
       pkgs.raspberrypiWirelessFirmware
-    ];
-    environment.systemPackages = [
-      (pkgs.writeShellScriptBin "setup-waveform.sh" ''
-        if [ "$EUID" -ne 0 ]
-          then echo "Please run as root"
-          exit
-        fi
-        test -e /lib/firmware/rockchip_ebc/ebc.wbf && exit
-        test -e /lib/firmware/rockchip_ebc/custom_wf.bin && exit
-        mkdir -p /lib/firmware/rockchip
-        ${packages.waveform-extract}/bin/waveform_extract.sh
-        cd /tmp && ${packages.wbf-to-custom}/bin/wbf_to_custom /lib/firmware/rockchip/ebc.wbf && mv custom_wf.bin /lib/firmware/rockchip/custom_wf.bin && (modprobe -r rockchip_ebc; modprobe rockchip_ebc)
-      '') # don't know how or if even possible to handle the waveform partition more "nix" way
     ];
   };
 }
