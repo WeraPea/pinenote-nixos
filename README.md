@@ -1,6 +1,6 @@
 # NixOS Module and Packages for PineNote
 This repository provides all that should be needed to get NixOS working on PineNote.
-It is largely based on [pinenote-dist](https://git.sr.ht/~hrdl/pinenote-dist/) by hrdl.
+It is largely based on [pinenote-dist](https://git.sr.ht/~hrdl/pinenote-dist/) by hrdl, and [netboot-host](https://github.com/PorQ-Pine/netboot-host/) for booting through usb.
 
 ## Preparations
 Setup the partition that NixOS will be installed on. For my personal configuration I needed about 15GB so I decided to remove the original 10GB os2, and combined it with data partition. For that I backed up my files from data, combined the partitions with `sudo cfdisk /dev/mmcblk0`, extended the ext4 fs with `sudo resize2fs /dev/mmcblk0p9`.
@@ -12,9 +12,9 @@ To create a disk image on existing NixOS system:
 
 1. (optional) If you don't have the UART dongle then first add your home network to the `./configuration.nix` file with [networking.networkmanager.ensureProfiles.profiles](https://search.nixos.org/options?show=networking.networkmanager.ensureProfiles.profiles)
 2. Add `aarch64-linux` to [boot.binfmt.emulatedSystems](https://nixos.org/manual/nixos/unstable/options#opt-boot.binfmt.emulatedSystems). Rebuild your system to apply.
-3. Run `nix build .#disk-image-cross`
+3. Run `nix build .#images.pinenote-cross-image`
 
-`disk-image-cross` cross-compiles the kernel, so the compilation doesn't go through qemu.
+`pinenote-cross-image` cross-compiles the kernel, so the compilation doesn't go through qemu. Use `pinenote-native-image` if building on arm64 hardware.
 Full build took on my machine around 40 minutes, most of that being building the kernel.
 
 ## Booting
@@ -25,6 +25,15 @@ Full build took on my machine around 40 minutes, most of that being building the
 You should now be able to reboot to NixOS by selecting os2 in uboot menu and access it thought UART or ssh (password for `user` is `password`).
 
 Assuming everything went fine, you should be able to switch to your own configuration. If you are using flakes, add this repo to your inputs, include `pinenote-nixos.nixosModules.default` in your modules, and enable it with `pinenote.config.enable = true;`. For a functioning configuration you can checkout my [nixos-config](https://github.com/werapea/nixos-config).
+
+## Booting from a USB drive
+
+1. Run `nix build .#images.pinenote-usb-cross-image`
+2. Flash it with `sudo dd if=result/nixos.img of=/dev/sdX bs=4M conv=fsync`
+3. Optionally resize it with `sudo e2fsck -f /dev/sdX1; sudo parted /dev/sdX resizepart 1 100%; sudo resize2fs /dev/sdX1`
+4. Boot it using helper script `nix run .#usb-helper` that will guide you through needed steps.
+
+Requires UART dongle and a USB drive you can plug into the PineNote.
 
 ## Tips
 Switching system derivations on PineNote can be slow, but you can offload all the work to your desktop machine by using `sudo NIX_SSHOPTS="-i /root/.ssh/remotebuildhost" nixos-rebuild test --flake ~/nixos-config#pinenote --target-host root@<pinenote>` on desktop, provided that you setup the remotebuildhost ssh key and add it to your PineNote's `/root/.ssh/authorized_keys`. Or more simply if you use `nh`: `nh os switch -H pinenote ~/nixos-config --target-host <pinenote id or hostname> -k` and optionally add `-o pinenote-$(date -Is)` to store the result, so it doesn't get garbage collected on the desktop. `nh` way does not require setting up root ssh authorization.

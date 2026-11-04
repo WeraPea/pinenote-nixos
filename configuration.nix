@@ -1,9 +1,9 @@
 {
-  pkgs,
   lib,
   inputs,
   outputs,
   cross,
+  usb,
   ...
 }:
 let
@@ -18,8 +18,9 @@ in
 {
   imports = [ outputs.nixosModules.default ];
   pinenote.config.enable = true;
+  pinenote.usb-boot.enable = usb;
   fileSystems."/" = {
-    label = "nixos";
+    label = if usb then "nixos-usb" else "nixos";
     fsType = "ext4";
   };
   services.openssh = {

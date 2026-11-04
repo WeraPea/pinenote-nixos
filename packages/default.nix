@@ -10,4 +10,5 @@ pkgs: rec {
   wbf-to-custom = pkgs.callPackage ./wbf-to-custom.nix { inherit read-file; };
   pinenote-service = pkgs.callPackage ./pinenote-service.nix { };
   setup-waveform = pkgs.callPackage ./setup-waveform.nix { inherit waveform-extract wbf-to-custom; };
+  usb-helper = pkgs.callPackage ./usb-helper.nix { };
 }

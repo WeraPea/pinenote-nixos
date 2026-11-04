@@ -11,30 +11,42 @@
       pkgs = import nixpkgs { inherit system; };
       lib = pkgs.lib;
       make-disk-image = import "${nixpkgs}/nixos/lib/make-disk-image.nix";
-      evalConfig = import "${nixpkgs}/nixos/lib/eval-config.nix";
-      config-native = {
+      config = {
         inherit system;
         modules = [ (import ./configuration.nix) ];
         specialArgs = {
           inherit inputs outputs;
           cross = false;
+          usb = false;
         };
       };
-      config-cross = lib.recursiveUpdate config-native { specialArgs.cross = true; };
       disk-image =
-        cfg:
+        config:
         make-disk-image {
-          inherit pkgs lib;
-          inherit (evalConfig cfg) config;
+          inherit pkgs lib config;
           additionalSpace = "0M";
+          label = config.fileSystems."/".label;
         };
     in
     {
       packages.${system} = import ./packages pkgs;
+      packages.x86_64-linux = import ./packages (import nixpkgs { system = "x86_64-linux"; });
       nixosModules.default = import ./module.nix inputs;
-      nixosConfigurations.pinenote-native = nixpkgs.lib.nixosSystem config-native; # sudo NIX_SSHOPTS="-i /root/.ssh/remotebuildhost" nixos-rebuild test --flake ~/pinenote/pinenote-nixos#pinenote-native --fast --target-host root@pinenote.home
-      nixosConfigurations.pinenote-cross = nixpkgs.lib.nixosSystem config-cross;
-      disk-image-native = disk-image config-native; # nix build #.disk-image-native --impure after that mount with -o loop,offset=1048576 and rsync the files over to the pinenote to a seperate partition and label the partition as nixos
-      disk-image-cross = disk-image config-cross;
+      nixosConfigurations = {
+        pinenote-native = nixpkgs.lib.nixosSystem config;
+        pinenote-cross = self.nixosConfigurations.pinenote-native.extendModules {
+          specialArgs.cross = true;
+        };
+        pinenote-usb-native = self.nixosConfigurations.pinenote-native.extendModules {
+          specialArgs.usb = true;
+        };
+        pinenote-usb-cross = self.nixosConfigurations.pinenote-native.extendModules {
+          specialArgs.cross = true;
+          specialArgs.usb = true;
+        };
+      };
+      images = lib.mapAttrs' (
+        name: value: lib.nameValuePair (name + "-image") (disk-image value.config)
+      ) self.nixosConfigurations;
     };
 }
