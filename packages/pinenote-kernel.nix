@@ -28,6 +28,7 @@ in
         VIDEO_THP7312 = no;
         CRYPTO_AEGIS128_SIMD = no;
         ROCKCHIP_DW_HDMI_QP = lib.mkForce no;
+        MISC_FILESYSTEMS = yes; # for squashfs for netboot
       }
       // structuredExtraConfig;
   }

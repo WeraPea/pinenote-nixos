@@ -5,6 +5,7 @@
   coreutils,
   gnugrep,
   gnused,
+  nbdkit,
 }:
 writeShellScriptBin "usb-helper" ''
   set -euo pipefail
@@ -14,29 +15,36 @@ writeShellScriptBin "usb-helper" ''
       coreutils
       gnugrep
       gnused
+      nbdkit
     ]
   }:$PATH"
   # based on https://github.com/PorQ-Pine/netboot-host
   # NOTE: initrd and dtb memory locations happen to work now, but could stop if kernel or initrd sizes change enough
 
-  config="pinenote-usb-cross"
+  config=""
   toplevel=""
   nixos_img=""
+  squashfs_img=""
+  netboot=""
 
   function print_help() {
     echo "Usage: $0 [options]"
     echo ""
     echo "Stage a NixOS kernel, initrd and dtb onto a PineNote over fastboot and"
-    echo "print the U-Boot commands needed to boot it from a usb stick."
+    echo "print the U-Boot commands needed to boot it from a usb stick or netboot."
     echo ""
     echo "Options:"
-    echo "  -c, --config <name>   NixOS configuration to build the toplevel from"
-    echo "                        (default: pinenote-usb-cross)"
-    echo "  -t, --toplevel <path> Use an existing system toplevel containing kernel, initrd"
-    echo "                        and dtbs instead of building one from --config"
-    echo "  -i, --image <path>    NixOS disk image to read the extlinux APPEND line from"
-    echo "                        instead of constructing it from toplevel"
-    echo "  -h, --help            Show this help message"
+    echo "  -c, --config <name>       NixOS configuration to build the toplevel from"
+    echo "                            (default: pinenote-usb-cross)"
+    echo "  -t, --toplevel <path>     Use an existing system toplevel containing kernel, initrd"
+    echo "                            and dtbs instead of building one from --config"
+    echo "  -i, --image <path>        NixOS disk image to read the extlinux APPEND line from"
+    echo "                            instead of constructing it from toplevel"
+    echo "  -n, --netboot             Start serving squashfs store after booting from U-Boot"
+    echo "                            sets config to default 'pinenote-netboot-cross'"
+    echo "  -s, --squashfs-img <path> Use an existing squashfs image for netboot instead"
+    echo "                            of building it from config"
+    echo "  -h, --help                Show this help message"
   }
 
   while [[ $# -gt 0 ]]; do
@@ -57,6 +65,14 @@ writeShellScriptBin "usb-helper" ''
       nixos_img="$2"
       shift 2
       ;;
+    -n|--netboot)
+      netboot=1
+      shift 1
+      ;;
+    -s|--squashfs-img)
+      squashfs_img="$2"
+      shift 2
+      ;;
     *)
       echo "invalid argument,"
       print_help
@@ -64,6 +80,14 @@ writeShellScriptBin "usb-helper" ''
       ;;
     esac
   done
+
+  if [[ -z "$config" ]]; then
+    if [[ -z "$netboot" ]]; then
+      config="pinenote-usb-cross"
+    else
+      config="pinenote-netboot-cross"
+    fi
+  fi
 
   if [[ -z "$toplevel" ]]; then
     toplevel=$(nix build .#nixosConfigurations.''${config}.config.system.build.toplevel --no-link --print-out-paths)
@@ -116,5 +140,17 @@ writeShellScriptBin "usb-helper" ''
   initrd_copy_r=$(hex $((dtb_r + dtb_size + dtb_resize)))
   echo "Paste into U-Boot:"
   echo "cp.b ''${initrd_r} ''${initrd_copy_r} $(hex "$initrd_size"); fdt addr ''${dtb_r}; fdt resize ''${dtb_resize}; fdt chosen ''${initrd_copy_r} $(hex $((initrd_copy_r + initrd_size))); booti ''${kernel_r} ''${initrd_copy_r}:$(hex "$initrd_size") ''${dtb_r}"
-  echo "Plug in usb stick with nixos image flashed onto it into the PineNote"
+  if [[ -z "$netboot" ]]; then
+    echo "Plug in usb stick with nixos image flashed onto it into the PineNote"
+  else
+    echo "Preparing nbdkit"
+    if [[ -z "$squashfs_img" ]]; then
+      squashfs_img=$(nix build .#nixosConfigurations.''${config}.config.system.build.squashfsStore --no-link --print-out-paths)
+    fi
+    nbdkit -r file "$squashfs_img" -p 10809 -f &
+    nbdkit_pid=$!
+    trap 'kill -9 "$nbdkit_pid" 2>/dev/null' EXIT
+    echo "nbdkit ready, plug in the normal USB cable, Ctrl-C to stop nbdkit"
+    wait
+  fi
 ''

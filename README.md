@@ -2,12 +2,14 @@
 This repository provides all that should be needed to get NixOS working on PineNote.
 It is largely based on [pinenote-dist](https://git.sr.ht/~hrdl/pinenote-dist/) by hrdl, and [netboot-host](https://github.com/PorQ-Pine/netboot-host/) for booting through usb.
 
-## Preparations
+## Install onto PineNote eMMC
+
+### Preparations
 Setup the partition that NixOS will be installed on. For my personal configuration I needed about 15GB so I decided to remove the original 10GB os2, and combined it with data partition. For that I backed up my files from data, combined the partitions with `sudo cfdisk /dev/mmcblk0`, extended the ext4 fs with `sudo resize2fs /dev/mmcblk0p9`.
 
 Whats most important is that you label the partition you will be installing to as nixos with `sudo e2label /dev/mmcblk0p9 nixos`.
 
-## Image
+### Image
 To create a disk image on existing NixOS system:
 
 1. (optional) If you don't have the UART dongle then first add your home network to the `./configuration.nix` file with [networking.networkmanager.ensureProfiles.profiles](https://search.nixos.org/options?show=networking.networkmanager.ensureProfiles.profiles)
@@ -17,7 +19,7 @@ To create a disk image on existing NixOS system:
 `pinenote-cross-image` cross-compiles the kernel, so the compilation doesn't go through qemu. Use `pinenote-native-image` if building on arm64 hardware.
 Full build took on my machine around 40 minutes, most of that being building the kernel.
 
-## Booting
+### Booting
 1. On PineNote mount your os2 partition on /mnt/ and ensure it is labeled as nixos (blkid should report the partition with LABEL="nixos", PARTLABEL can be different)
 2. On desktop system mount the image from previous section `sudo mount -o loop,offset=1048576 result/nixos.img /mnt/img/`
 3. Rsync the files over to PineNote with `sudo rsync -aHAXx --numeric-ids --progress /mnt/img/ root@<pinenote>:/mnt/` (for root access either enable root password login by changing `#PermitRootLogin prohibit-password` to `PermitRootLogin yes` in `/etc/ssh/sshd_config` on PineNote, or by providing your ssh pub key to `/root/.ssh/authorized_keys` on the PineNote)
@@ -26,6 +28,22 @@ You should now be able to reboot to NixOS by selecting os2 in uboot menu and acc
 
 Assuming everything went fine, you should be able to switch to your own configuration. If you are using flakes, add this repo to your inputs, include `pinenote-nixos.nixosModules.default` in your modules, and enable it with `pinenote.config.enable = true;`. For a functioning configuration you can checkout my [nixos-config](https://github.com/werapea/nixos-config).
 
+## Tips
+Switching system derivations on PineNote can be slow, but you can offload all the work to your desktop machine by using `sudo NIX_SSHOPTS="-i /root/.ssh/remotebuildhost" nixos-rebuild test --flake ~/nixos-config#pinenote --target-host root@<pinenote>` on desktop, provided that you setup the remotebuildhost ssh key and add it to your PineNote's `/root/.ssh/authorized_keys`. Or more simply if you use `nh`: `nh os switch -H pinenote ~/nixos-config --target-host <pinenote id or hostname> -k` and optionally add `-o pinenote-$(date -Is)` to store the result, so it doesn't get garbage collected on the desktop. `nh` way does not require setting up root ssh authorization.
+
+## Booting through USB via NetBoot
+
+NetBoot starts a temporary NixOS system with its store served over USB networking, without flashing a USB drive or installing the system to internal storage.
+
+1. Open TCP port 10809, eg on NixOS: `sudo nixos-firewall-tool open tcp 10809`.
+2. Run `nix run .#usb-helper -- -n` and follow the steps.
+
+You may need to manually set the USB interface's ipv4 address to `10.55.0.1` with `sudo ip addr add 10.55.0.1/24 dev <iface>`, possibly multiple times especially after a disconnect.
+
+This way also allows for ssh access through USB with: `ssh user@10.55.0.2`
+
+Requires binfmt emulation or arm64 hardware, UART dongle and a USB C cable.
+
 ## Booting from a USB drive
 
 1. Run `nix build .#images.pinenote-usb-cross-image`
@@ -33,7 +51,4 @@ Assuming everything went fine, you should be able to switch to your own configur
 3. Optionally resize it with `sudo e2fsck -f /dev/sdX1; sudo parted /dev/sdX resizepart 1 100%; sudo resize2fs /dev/sdX1`
 4. Boot it using helper script `nix run .#usb-helper` that will guide you through needed steps.
 
-Requires UART dongle and a USB drive you can plug into the PineNote.
-
-## Tips
-Switching system derivations on PineNote can be slow, but you can offload all the work to your desktop machine by using `sudo NIX_SSHOPTS="-i /root/.ssh/remotebuildhost" nixos-rebuild test --flake ~/nixos-config#pinenote --target-host root@<pinenote>` on desktop, provided that you setup the remotebuildhost ssh key and add it to your PineNote's `/root/.ssh/authorized_keys`. Or more simply if you use `nh`: `nh os switch -H pinenote ~/nixos-config --target-host <pinenote id or hostname> -k` and optionally add `-o pinenote-$(date -Is)` to store the result, so it doesn't get garbage collected on the desktop. `nh` way does not require setting up root ssh authorization.
+Requires binfmt emulation or arm64 hardware, UART dongle and a USB drive you can plug into the PineNote.

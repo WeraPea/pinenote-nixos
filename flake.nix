@@ -9,6 +9,7 @@
       inherit (self) outputs;
       system = "aarch64-linux";
       pkgs = import nixpkgs { inherit system; };
+      pkgs-x86_64 = import nixpkgs { system = "x86_64-linux"; };
       lib = pkgs.lib;
       make-disk-image = import "${nixpkgs}/nixos/lib/make-disk-image.nix";
       config = {
@@ -30,7 +31,7 @@
     in
     {
       packages.${system} = import ./packages pkgs;
-      packages.x86_64-linux = import ./packages (import nixpkgs { system = "x86_64-linux"; });
+      packages.x86_64-linux = import ./packages pkgs-x86_64;
       nixosModules.default = import ./module.nix inputs;
       nixosConfigurations = {
         pinenote-native = nixpkgs.lib.nixosSystem config;
@@ -43,6 +44,13 @@
         pinenote-usb-cross = self.nixosConfigurations.pinenote-native.extendModules {
           specialArgs.cross = true;
           specialArgs.usb = true;
+        };
+        pinenote-netboot-native = self.nixosConfigurations.pinenote-native.extendModules {
+          modules = [ { pinenote.netboot.enable = true; } ];
+        };
+        pinenote-netboot-cross = self.nixosConfigurations.pinenote-netboot-native.extendModules {
+          modules = [ { pinenote.netboot.squashfsPkgs = pkgs-x86_64; } ];
+          specialArgs.cross = true;
         };
       };
       images = lib.mapAttrs' (

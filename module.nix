@@ -9,6 +9,7 @@ let
   packages = inputs.self.packages.${pkgs.stdenv.hostPlatform.system};
 in
 {
+  imports = [ ./netboot.nix ];
   options = {
     pinenote.config.enable = lib.mkEnableOption "pinenote specific nixos configs";
     pinenote.sway-dbus-integration.enable = lib.mkEnableOption "sway-dbus-integration service";
