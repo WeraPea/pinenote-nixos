@@ -35,5 +35,10 @@ in
   networking.networkmanager.enable = true;
   networking.hostName = "pinenote";
 
+  nix.settings.experimental-features = [
+    "nix-command"
+    "flakes"
+  ];
+
   boot.kernelPackages = lib.mkIf cross (pkgsCross.linuxPackagesFor (packagesCross.pinenote-kernel));
 }
