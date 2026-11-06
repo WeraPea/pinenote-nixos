@@ -12,15 +12,18 @@ in
   options = {
     pinenote.netboot.enable = lib.mkEnableOption "booting over usb using netboot";
     pinenote.netboot.storeContents = lib.mkOption {
-      example = lib.literalExample "[ pkgs.stdenv ]";
+      type = lib.types.listOf lib.types.pathInStore;
+      example = lib.literalExpression "[ pkgs.stdenv ]";
       description = ''
         This option lists additional derivations to be included in the
         Nix store in the generated netboot image.
       '';
     };
     pinenote.netboot.squashfsPkgs = lib.mkOption {
-      example = lib.literalExample ''import nixpkgs { system = "x86_64-linux"; }'';
+      type = lib.types.pkgs;
       default = pkgs;
+      defaultText = lib.literalExpression "pkgs";
+      example = lib.literalExpression ''import nixpkgs { system = "x86_64-linux"; }'';
       description = ''
         nixpkgs instance used for building the squashfsStore image,
         as opposed to the instance used for the store paths in it.

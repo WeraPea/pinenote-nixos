@@ -26,7 +26,7 @@ rustPlatform.buildRustPackage rec {
   '';
 
   meta = {
-    description = "";
+    description = "PineNote Service aims to be a central, dbus-aware service to manage various PineNote specific configurations.";
     homepage = "https://git.sr.ht/~phantomas/pinenote-service/";
     license = lib.licenses.gpl3Plus;
     maintainers = with lib.maintainers; [ ];

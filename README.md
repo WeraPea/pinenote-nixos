@@ -2,6 +2,10 @@
 This repository provides all that should be needed to get NixOS working on PineNote.
 It is largely based on [pinenote-dist](https://git.sr.ht/~hrdl/pinenote-dist/) by hrdl, and [netboot-host](https://github.com/PorQ-Pine/netboot-host/) for booting through usb.
 
+[NixOS Options](./docs/options.md)
+
+[Packages](./docs/packages.md)
+
 ## Install onto PineNote eMMC
 
 ### Preparations

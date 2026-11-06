@@ -39,4 +39,8 @@ in
       cp "$out/dtbs/rockchip/rk3566-pinenote-v1.2.dtb" "$out/dtbs/rockchip/pn.dtb"
       ${oldAttrs.postInstall}
     '';
+    meta = oldAttrs.meta // {
+      description = "Linux kernel, with PineNote-related modifications";
+      homepage = "https://git.sr.ht/~hrdl/linux";
+    };
   })

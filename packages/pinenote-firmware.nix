@@ -1,4 +1,5 @@
 {
+  lib,
   stdenvNoCC,
   fetchurl,
   ...
@@ -42,4 +43,13 @@ stdenvNoCC.mkDerivation rec {
     ln -s brcmfmac43455-sdio.AW-CM256SM.txt \
       $out/lib/firmware/brcm/brcmfmac43455-sdio.pine64,pinenote-v1.2.txt
   '';
+
+  meta = with lib; {
+    description = "PineNote firmware";
+    homepage = [
+      "https://gitlab.com/kernel-firmware/linux-firmware"
+      "https://github.com/RPi-Distro/firmware-nonfree"
+    ];
+    license = licenses.unfreeRedistributableFirmware;
+  };
 }

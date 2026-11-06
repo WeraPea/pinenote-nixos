@@ -9,6 +9,7 @@ let
   packages = inputs.self.packages.${pkgs.stdenv.hostPlatform.system};
 in
 {
+  _file = ./default.nix;
   imports = [ ./netboot.nix ];
   options = {
     pinenote.config.enable = lib.mkEnableOption "pinenote specific nixos configs";
