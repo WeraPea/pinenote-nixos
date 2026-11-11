@@ -149,7 +149,6 @@ in
       device = "/dev/nbd0";
       fsType = "squashfs";
       neededForBoot = true;
-      options = [ "x-systemd.requires=nbd-store.service" ];
     };
     fileSystems."/nix/.rw-store" = lib.mkForce {
       fsType = "tmpfs";
