@@ -7,6 +7,23 @@
 }:
 let
   cfg = config.pinenote.netboot;
+  network-config = {
+    matchConfig.Name = "usb0";
+    address = [ "10.55.0.2/24" ];
+    networkConfig = {
+      ConfigureWithoutCarrier = true;
+      DHCPServer = true;
+    };
+    dhcpServerConfig = {
+      PersistLeases = "runtime";
+      PoolOffset = 1; # 10.55.0.1
+      PoolSize = 1;
+      EmitRouter = false;
+      EmitDNS = false;
+      DefaultLeaseTimeSec = "7d";
+      MaxLeaseTimeSec = "7d";
+    };
+  };
 in
 {
   options = {
@@ -53,25 +70,14 @@ in
     ];
     boot.initrd.systemd.storePaths = [ pkgs.nbd ];
 
+    networking.firewall.interfaces.usb0.allowedUDPPorts = [ 67 ];
     boot.initrd.systemd.network = {
       enable = true;
-      networks."10-usb" = {
-        matchConfig.Name = "usb0";
-        address = [ "10.55.0.2/24" ];
-        networkConfig = {
-          ConfigureWithoutCarrier = true;
-          DHCPServer = true;
-        };
-        dhcpServerConfig = {
-          PersistLeases = "runtime";
-          PoolOffset = 1; # 10.55.0.1
-          PoolSize = 1;
-          EmitRouter = false;
-          EmitDNS = false;
-          DefaultLeaseTimeSec = "7d";
-          MaxLeaseTimeSec = "7d";
-        };
-      };
+      networks."10-usb" = network-config;
+    };
+    systemd.network = {
+      enable = true;
+      networks."10-usb" = network-config;
     };
 
     boot.initrd.systemd.services.usb-network-gadget = {

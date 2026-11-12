@@ -42,7 +42,7 @@ NetBoot starts a temporary NixOS system with its store served over USB networkin
 1. Open TCP port 10809, eg on NixOS: `sudo nixos-firewall-tool open tcp 10809`.
 2. Run `nix run .#usb-helper -- -n` and follow the steps.
 
-You may need to manually set the USB interface's ipv4 address to `10.55.0.1` with `sudo ip addr add 10.55.0.1/24 dev <iface>`, possibly multiple times especially after a disconnect.
+You may need to manually set the USB interface's ipv4 address to `10.55.0.1` with `sudo ip addr add 10.55.0.1/24 dev <iface>`.
 
 This way also allows for ssh access through USB with: `ssh user@10.55.0.2`
 
